@@ -1,0 +1,14 @@
+[Unit]
+Description=Study consistent snapshot and encrypted SFTP backup
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+User=study-backup
+EnvironmentFile=/etc/study/backup.env
+ExecStart=/bin/sh /srv/study/scripts/backup.sh
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/study/backups /srv/study/runtime

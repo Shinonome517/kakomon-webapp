@@ -1,0 +1,12 @@
+*
+!Dockerfile
+!pyproject.toml
+!uv.lock
+!app/
+!app/**
+!schemas/
+!schemas/**
+!scripts/
+!scripts/validate_math.cjs
+**/__pycache__
+**/*.pyc

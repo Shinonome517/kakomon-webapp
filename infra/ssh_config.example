@@ -1,0 +1,8 @@
+Host study-backup-target
+    HostName backup.example.com
+    User study-backup
+    IdentityFile /etc/study/backup-identity
+    UserKnownHostsFile /etc/study/backup-known-hosts
+    StrictHostKeyChecking yes
+    BatchMode yes
+    IdentitiesOnly yes

@@ -1,0 +1,35 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      UV_CACHE_DIR: ${{ github.workspace }}/.cache/uv
+      UV_PYTHON_DOWNLOADS: never
+      npm_config_cache: ${{ github.workspace }}/.cache/npm
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+      TMPDIR: ${{ github.workspace }}/.local/tmp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: mkdir -p .local/tmp .local/logs
+      - run: python -m pip install uv==0.12.19
+        env:
+          PIP_CACHE_DIR: ${{ github.workspace }}/.cache/pip
+      - run: uv sync --frozen
+      - run: npm ci --ignore-scripts && npm run assets
+      - run: uv run python app/manage.py collectstatic --noinput
+      - run: uv run python app/manage.py migrate && uv run python app/manage.py import_questions tests/fixtures/synthetic
+      - run: uv run python app/manage.py check && uv run python app/manage.py makemigrations --check --dry-run
+      - run: uv run ruff check app tests scripts && uv run ruff format --check app tests scripts
+      - run: uv run pytest tests --ignore=tests/e2e --basetemp=.local/tmp/pytest -q
+      - run: uv run playwright install --with-deps chromium
+      - run: uv run pytest tests/e2e --basetemp=.local/tmp/e2e -q
+      - run: python scripts/check_public.py && git diff --check

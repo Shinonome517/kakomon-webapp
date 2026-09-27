@@ -1,49 +1,93 @@
-# 一陸特 学習アプリ — 実装スターター
+# 一陸特 学習ノート v0.1
 
-スマートフォンで、一陸特の問題を一問ずつ解き、各問題の最新回答に基づく正答率を確認するセルフホスト型Webアプリ。
+スマホで一問ずつ解く、セルフホストの学習Webアプリ。Django 5.2 LTS＋SQLite、管理者発行のユーザー名認証、選択肢タップ採点、各問題の最新回答による成績、復習・ブックマーク、認証付き複数画像・数式、JSON取り込み、バックアップ／隔離復元を実装しています。
 
-**このリポジトリは仕様と実装指示のスターターです。アプリ本体はまだ実装されていません。** Codex Astraが以下の文書を読み、実装・テスト・運用テンプレートを追加します。
+同梱6問は**自作の動作確認用・試験対策用ではない合成問題**です。実問題・PDF・利用者情報・秘密値は含めません。実装と検証結果は[HANDOFF](docs/HANDOFF.md)、要件との対応は[ACCEPTANCE](docs/ACCEPTANCE.md)を参照してください。ブラウザE2Eと本番構成は未検証です。
 
-## 読む順番
+## ローカルで起動
 
-1. `AGENTS.md` — 作業範囲、安全上の制約、実装の進め方。
-2. `docs/SPEC.md` — 確定要件、設計基準、データ・公開・バックアップの仕様。
-3. `docs/ACCEPTANCE.md` — 完了判定と検証ケース。
-4. `docs/IMPLEMENTATION_PLAN.md` — 実装順序と成果物。
-5. `docs/DECISIONS.md` / `docs/HANDOFF.md` — 判断・進捗・未検証事項。
-
-## 実装基準
-
-Django 5.2 LTSの保守中パッチ版、Python 3.13、SQLite、Djangoテンプレートと小さなJavaScriptを基準とします。認証はDjango標準機構を使用し、初版では別の認証サービス、SPA、Redis、Celeryを導入しません。これは未指定の技術部分に対する設計判断であり、ユーザーがフレームワークを指定したという意味ではありません。
-
-アプリ・DB・画像は同一のセルフホスト機に置きます。外部公開はCloudflareのプロキシ付きAAAAレコードとIPv6 DDNSを使い、Tunnelは使用しません。公開ホスト名、DNS認証情報、SSH情報、バックアップ先などの実値はリポジトリに記載しません。
-
-## 公開するもの／しないもの
-
-公開対象はコード、仕様、テスト、自作の合成テストデータ、秘密値を含まない設定例です。実問題データ、元PDF、切り抜き画像、利用者情報、DB、セッション、バックアップ、個人用の操作メモ、エージェントの実行ログ、実環境の設定は公開しません。
-
-## ライセンス
-
-このリポジトリのソフトウェアは [GNU Affero General Public License v3.0 only](LICENSE)（`AGPL-3.0-only`）です。改変版をネットワーク経由で利用者に提供する場合も、AGPL第13条に従い、対応するソースコードを利用者が取得できるようにしてください。
-
-このライセンスは、公益財団法人日本無線協会その他の第三者が権利を持つ試験問題、解答、PDF、画像、教材、解説には適用されず、それらについて利用許諾を与えるものでもありません。実問題を取り込む場合は、権利者が示す当時の利用条件、対象科目、出典表示その他の条件を個別に確認してください。
-
-問題データの作成・画像切り抜き用の作業指示書は別途作成します。このリポジトリでは取り込み側の契約のみ定めます。実データが未提供でも、自作の合成問題で実装を完了できるようにしてください。
-
-## 公開前の補助チェック
-
-Git初期化後、リポジトリルートから実行します。
+Python 3.13、uv、Node.jsを別途準備済みの環境で、リポジトリルートから実行します。OSの自動変更はしません。
 
 ```sh
-python3 scripts/check_public.py
-git diff --check
-git status --short
+mkdir -p .cache/uv .cache/npm .cache/ms-playwright .local/tmp .local/logs
+export UV_CACHE_DIR="$PWD/.cache/uv"
+export UV_PYTHON_DOWNLOADS=never
+export npm_config_cache="$PWD/.cache/npm"
+export PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright"
+export TMPDIR="$PWD/.local/tmp"
+uv sync --frozen --python python3.13
+npm ci --ignore-scripts
+npm run assets
+.venv/bin/python app/manage.py migrate
+.venv/bin/python app/manage.py collectstatic --noinput
+.venv/bin/python app/manage.py import_questions tests/fixtures/synthetic --dry-run
+.venv/bin/python app/manage.py import_questions tests/fixtures/synthetic
+.venv/bin/python app/manage.py create_learner --username demo-learner
+.venv/bin/python app/manage.py runserver 127.0.0.1:8000
 ```
 
-`check_public.py`は代表的な秘密ファイル・トークン・個人メモの混入を検出する補助です。あらゆる個人情報を検出するものではありません。差分の目視確認と、実装時に整備する秘密情報スキャンも必要です。
+ブラウザで `http://127.0.0.1:8000/` を開きます。CLIは12文字以上のパスワードを非表示で二回入力させます。ログイン後、本人が異なるパスワードへ変更するまで問題は見られません。固定アカウントや固定seedパスワードは作りません。管理コマンドはOSで実行できる運用者専用です。
 
-## 実装後にREADMEへ追加するもの
+```sh
+.venv/bin/python app/manage.py reset_learner_password --username demo-learner
+.venv/bin/python app/manage.py disable_learner --username demo-learner
+```
 
-実際に検証したセットアップ、起動、テスト、アカウント発行、問題取り込み、バックアップ、復元の手順を追加してください。まだ存在しないコマンドを「実行済み」「利用可能」と書かないでください。
+リセットは他端末のセッションを失効させ、初回変更を再び必須にします。公開サインアップ、メール認証、Django adminの公開ルートはありません。
 
-依存物・同梱資産のライセンス表記は別途保持してください。
+## 学習と取り込み
+
+科目・年度／実施回・分野は取り込んだデータから選べます。未選択はすべて。復習対象とのANDで絞り込み、元順または保存されたランダムキュー、10・20・50・すべてを選べます。採点後は自動遷移せず、解説を読んで次へ進みます。通信切断時は同じ学習項目・同じ回答だけを再送し、再読み込みでも保存結果を復元します。
+
+独自のバンドルは[JSON Schema](schemas/question-bundle.schema.json)と[合成サンプル](tests/fixtures/synthetic/manifest.json)を参照してください。
+
+```sh
+.venv/bin/python app/manage.py import_questions imports/example-bundle --dry-run
+.venv/bin/python app/manage.py import_questions imports/example-bundle
+```
+
+入力は展開済みディレクトリ内のmanifestとPNG/JPEG/WebPです。HTML・外部画像・パス逸脱・symlink・不正な参照は拒否し、画像はメタデータを除去して不変ハッシュで保存します。数式はローカルKaTeXで検証します。未確認・不正な数式はdraftとなり、verifiedだけを出題します。画像欠損等はバンドル全体を拒否して部分公開しません。
+
+同一内容の再投入は変更なし。解説のみの改訂は成績を維持し、本文・選択肢・正解・採点用図の改訂は採点版を更新して再学習扱いにします。古い履歴と論理問題へのブックマークは残ります。実問題の権利・正確性は人間が確認してから投入してください。
+
+## 検証
+
+```sh
+.venv/bin/pytest tests --ignore=tests/e2e --basetemp=.local/tmp/pytest -q
+.venv/bin/ruff check app tests scripts
+.venv/bin/ruff format --check app tests scripts
+.venv/bin/python app/manage.py check
+.venv/bin/python app/manage.py makemigrations --check --dry-run
+.venv/bin/python scripts/check_public.py
+git diff --check
+```
+
+UIテストの実行可能環境では、次を追加します。ダウンロード拒否時はネットワークやサンドボックスを解除せず、接続先を管理者へ伝えてください。
+
+```sh
+.venv/bin/playwright install chromium
+.venv/bin/pytest tests/e2e --basetemp=.local/tmp/e2e -q -x
+```
+
+既存のテスト用ブラウザを使う場合は`PLAYWRIGHT_EXECUTABLE_PATH`を指定できます。個人のブラウザプロフィールは使用しません。スクリーンショットは合成データだけを`.local/screenshots/`に保存します。この環境では配布ブラウザの取得が403、既存Chromeが起動時SIGABRTとなり、UIテストは未検証です。WebKitも未実行です。
+
+GitHub ActionsはCI定義のみです。リモートでの実行やデプロイは行っていません。
+
+## バックアップと公開
+
+ローカルで実行済みの例です。出力先は未作成のディレクトリにします。
+
+```sh
+.venv/bin/python app/manage.py export_snapshot .local/backup-check
+.venv/bin/python app/manage.py restore_snapshot .local/backup-check .local/restore-check
+```
+
+[バックアップと復元](docs/BACKUP_RESTORE.md)、[公開手順](docs/DEPLOYMENT.md)、[依存の固定と理由](docs/DEPENDENCIES.md)を参照してください。IPv6 DDNS＋Cloudflareプロキシ＋ホストNginx用のテンプレートを用意しています。Tunnelや外部DBは使いません。実環境への接続・コンテナ操作・DNS API呼出し・遠隔保存は人間の別作業です。
+
+主な環境変数：`APP_ENV`、`DJANGO_SECRET_KEY`、`DJANGO_ALLOWED_HOSTS`、`DJANGO_CSRF_TRUSTED_ORIGINS`、`APP_RUNTIME`、任意の`APP_DB`と`SOURCE_URL`。開発既定のDB/mediaは`runtime/`です。本番は`.env.example`を参照し、設定不備では起動を拒否します。
+
+## ライセンスと公開範囲
+
+ソフトウェアは[AGPL-3.0-only](LICENSE)。ネットワーク提供時は改変を含む対応ソースを利用者が取得できるよう、`SOURCE_URL`を設定してください。同梱ライブラリのライセンスは別途保持します。
+
+第三者の試験問題・解答・PDF・教材への利用許諾は含みません。実データ、画像切り抜き、利用者情報、DB、バックアップ、秘密値、実行ログ、個人メモはGitへ含めません。公開前に`check_public.py`と差分の目視レビューを実行します。補助スキャンはあらゆる秘密情報を検出するものではありません。

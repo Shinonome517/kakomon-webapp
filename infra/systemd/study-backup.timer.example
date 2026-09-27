@@ -1,0 +1,8 @@
+[Unit]
+Description=Study daily backup at 03:30 Japan time
+[Timer]
+OnCalendar=*-*-* 03:30:00 Asia/Tokyo
+Persistent=true
+Unit=study-backup.service
+[Install]
+WantedBy=timers.target
