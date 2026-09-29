@@ -2,7 +2,7 @@
 
 スマホで一問ずつ解く、セルフホストの学習Webアプリ。Django 5.2 LTS＋SQLite、管理者発行のユーザー名認証、選択肢タップ採点、各問題の最新回答による成績、復習・ブックマーク、認証付き複数画像・数式、JSON取り込み、バックアップ／隔離復元を実装しています。
 
-同梱6問は**自作の動作確認用・試験対策用ではない合成問題**です。実問題・PDF・利用者情報・秘密値は含めません。実装と検証結果は[HANDOFF](docs/HANDOFF.md)、要件との対応は[ACCEPTANCE](docs/ACCEPTANCE.md)を参照してください。ブラウザE2Eと本番構成は未検証です。
+同梱6問は**自作の動作確認用・試験対策用ではない合成問題**です。実問題・PDF・利用者情報・秘密値は含めません。実装と検証結果は[HANDOFF](docs/HANDOFF.md)、要件との対応は[ACCEPTANCE](docs/ACCEPTANCE.md)を参照してください。ChromiumブラウザE2Eは検証済み、本番構成は未検証です。
 
 ## ローカルで起動
 
@@ -69,7 +69,7 @@ UIテストの実行可能環境では、次を追加します。ダウンロー
 .venv/bin/pytest tests/e2e --basetemp=.local/tmp/e2e -q -x
 ```
 
-既存のテスト用ブラウザを使う場合は`PLAYWRIGHT_EXECUTABLE_PATH`を指定できます。個人のブラウザプロフィールは使用しません。スクリーンショットは合成データだけを`.local/screenshots/`に保存します。この環境では配布ブラウザの取得が403、既存Chromeが起動時SIGABRTとなり、UIテストは未検証です。WebKitも未実行です。
+既存のテスト用ブラウザを使う場合は`PLAYWRIGHT_EXECUTABLE_PATH`を指定できます。個人のブラウザプロフィールは使用しません。スクリーンショットは合成データだけを`.local/screenshots/`に保存します。Playwright ChromiumでE2E 6件が成功しました。WebKitは未実行です。
 
 GitHub ActionsはCI定義のみです。リモートでの実行やデプロイは行っていません。
 

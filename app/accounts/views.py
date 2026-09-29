@@ -12,6 +12,10 @@ class LoginForm(AuthenticationForm):
         "inactive": "ユーザー名またはパスワードが違います。",
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = "ユーザー名"
+
     def clean_username(self):
         return User.normalize_username(self.cleaned_data["username"])
 

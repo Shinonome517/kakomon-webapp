@@ -9,6 +9,14 @@ from playwright.sync_api import expect, sync_playwright
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
+@pytest.fixture(autouse=True)
+def static_for_live_server(settings):
+    settings.STORAGES = {
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    }
+
+
 @pytest.fixture
 def browser(live_server, seeded, user):
     with sync_playwright() as runtime:

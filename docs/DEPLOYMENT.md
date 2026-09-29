@@ -1,6 +1,6 @@
 # 公開前の適用手順（人間用・未実機検証）
 
-Codexは本番機・別ホスト・既存コンテナ・DNS APIへ接続していない。以下はレビューしてから人間が適用するテンプレートであり、そのまま実設定へ上書きしない。
+以下は人間がレビューして適用するテンプレートです。本番環境への接続・適用は未検証です。
 
 ## 構成
 
@@ -11,7 +11,7 @@ Cloudflareのプロキシ付きAAAA → IPv6:443のホストNginx → ループ�
 1. ソースとlockをレビューし、Python 3.13／Node.jsと運用用uvを準備する。Docker・Compose・Nginx・restic・Tailscaleの導入とサービス変更は人間が行う。
 2. `.env.example`を参照して秘密設定を作る。SECRET_KEYはランダムな50文字以上、ALLOWED_HOSTSは実際の公開名だけ、CSRF_TRUSTED_ORIGINSはHTTPS origin。空・既知プレースホルダー・環境名の誤字は起動拒否。`.env`をGitに含めない。SOURCE_URLには利用者が対応する全ソースを取得できるURLを設定する。
 3. `runtime/`をUID/GID 10001が読書きできるよう人間が準備。DB・mediaはローカルSSDに永続化し、NFS/SMB/同期フォルダーへ置かない。Composeのホスト公開は`127.0.0.1:18080`のみ。初回migration、管理CLI、importは同じDB・mediaに対して実行する。Composeコンテナ再作成で保持されることを実機確認する。
-4. コンテナの構築・migration・起動は人間が行う。`Dockerfile`と`compose.yaml`は本作業でデーモンを使用していないため、ビルド・起動未検証。`collectstatic`はビルド時、migrationは運用者の明示操作に分けている。
+4. コンテナの構築・migration・起動は人間が行う。`Dockerfile`と`compose.yaml`のビルド・起動は未検証。`collectstatic`はビルド時、migrationは運用者の明示操作に分けている。
 
 ## Nginx／Cloudflare
 

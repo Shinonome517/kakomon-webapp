@@ -1,7 +1,5 @@
 # 受け入れテストと公開前チェック
 
-2026-09-27：サーバー側46テスト成功。UIのE2Eは6ケースを定義したがブラウザ起動不能のため未検証。本番C項目はすべて未実施。対応表を末尾に記載する。
-
 ## A. 自動化必須
 
 | ID | ケース | 合格条件 |
@@ -54,7 +52,7 @@ Playwrightを基準に、少なくとも次を確認します。利用可能な�
 
 ## C. 人間が公開前に実機で行うこと
 
-ここはCodexによる夜間作業の自動実行対象ではありません。テンプレートと手順が完成していても「疎通確認済み」としないでください。
+テンプレートと手順が完成していても、実環境で確認するまで「疎通確認済み」としないでください。
 
 | ID | 実機チェック |
 |---|---|
@@ -70,7 +68,7 @@ Playwrightを基準に、少なくとも次を確認します。利用可能な�
 | C10 | 実問題の権利・解答・解説・図を確認した後にのみverifiedで取り込む。 |
 
 
-## 実装と実行結果（2026-09-27）
+## 実装と検証結果
 
 実行：`.venv/bin/pytest tests --ignore=tests/e2e --basetemp=.local/tmp/pytest -q` → **46 passed**。
 テスト名の先頭に対象IDを含める。複数の異常入力はパラメータ化した独立ケースとして実行している。
@@ -81,11 +79,11 @@ Playwrightを基準に、少なくとも次を確認します。利用可能な�
 | A03–A05 | `tests/test_learning.py`：未認証、ユーザー間のitem／履歴／画像／bookmark分離、CSRF・他origin・不正選択肢。 | PASS |
 | A06 | `test_A06_limit_expiry_and_other_source`、`test_A06_source_limit_different_names`：5回、15分、送信元全体と別送信元、一般化エラー。 | PASS |
 | A07 | `test_A03_A07_A19_protection_before_answer`：回答前HTMLから解説・正解フィールド・解説図URLを排除。推測URLも拒否。 | PASS（ブラウザ通信一覧は未検証） |
-| A08 | `test_A08_A10_A11_A12_answer_retry`：通常POSTとJSON採点・解説、テンプレートに選択肢ボタンを実装。 | サーバーPASS、実タップ未検証 |
-| A09–A12 | 同テストと`test_A09_A25_parallel_real_file`：再送・異なる回答409・再読み込み・明示した再学習・並行一意制約。 | PASS（実ブラウザ応答消失は未検証） |
+| A08 | `test_A08_A10_A11_A12_answer_retry`：通常POSTとJSON採点・解説、テンプレートに選択肢ボタンを実装。 | サーバーとブラウザPASS |
+| A09–A12 | 同テストと`test_A09_A25_parallel_real_file`：再送・異なる回答409・再読み込み・明示した再学習・並行一意制約。 | PASS（ブラウザ応答消失・再送を含む） |
 | A13–A16 | `test_A13_latest_statistics`、`test_A14_empty`、`test_A15_A16_filters_and_queue`：最新回答、未回答除外、AND、空集合、保存済み順序。 | PASS |
-| A17 | 認証画像の実HTTP配信、画像メタデータ除去、複数ブロック・用途別参照。 | サーバーPASS、画像拡大／視覚順序未検証 |
-| A18 | `tests/test_import.py`：HTML・危険URL・外部画像拒否、不正数式draft。KaTeX／Markdown出力のローカル配信を実装。 | 入力検証PASS、数式描画未検証 |
+| A17 | 認証画像の実HTTP配信、画像メタデータ除去、複数ブロック・用途別参照。 | サーバーとブラウザの画像拡大PASS |
+| A18 | `tests/test_import.py`：HTML・危険URL・外部画像拒否、不正数式draft。KaTeX／Markdown出力のローカル配信を実装。 | 入力検証とブラウザ数式描画PASS |
 | A19 | `test_A03_A07_A19_protection_before_answer`：所有権、private/no-store、media迂回404。 | PASS、Cloudflare実キャッシュ未検証 |
 | A20–A22 | `tests/test_import.py`：dry-runのDB/media/履歴不変、衝突拒否、再実行、未知形式・重複・外部パス・欠損・symlink・巨大図・画像中断。 | PASS |
 | A23–A24 | 同ファイル：非公開の集計／直接アクセス除外、解説のみ維持、正解／図変更による採点版更新、古いitem409。 | PASS |
@@ -98,6 +96,6 @@ Playwrightを基準に、少なくとも次を確認します。利用可能な�
 
 静的検査：Ruff lint／format、Django check、migration差分検査、JavaScript構文検査、backup shell構文検査が成功。実HTTPでhealth・ログイン200を確認。
 
-UI：`tests/e2e/test_browser.py`に360／390／768／1280px、ログイン→絞り込み→拡大→回答→次へ→成績、キーボード・Esc・フォーカス復帰、保存後応答消失→再送、JavaScript無効時POSTの6ケースを定義した。Playwright配布Chromeは`cdn.playwright.dev`からの取得が403（許可先制限）。既存ChromeもSIGABRTで起動できず、**6件すべて未検証**。WebKitは未実行、スクリーンショットは未生成。テストの削除・skip・モックへの置換はしていない。
+UI：`tests/e2e/test_browser.py`で360／390／768／1280px、ログイン→絞り込み→拡大→回答→次へ→成績、キーボード・Esc・フォーカス復帰、保存後応答消失→再送、JavaScript無効時POSTの**6件成功**。合成データの4幅スクリーンショットを`.local/screenshots/`に生成して確認した。WebKitは未実行。
 
 Docker・Compose・Nginx・systemd・resticのテンプレートはコード上のレビューに限定する。実デーモンでの設定検証、コンテナビルド、GitHub Actions実行、C01〜C10は未実施。

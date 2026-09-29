@@ -18,7 +18,7 @@ Python 3.13.15で検証。直接依存と推移依存の正確な固定値・配
 | Playwright | 1.63.0 | 幅別・通信切断・キーボードのE2E定義。 |
 | uv | 0.12.19 | lock再現・仮想環境作成。 |
 
-DjangoのIMMEDIATE／timeoutとKaTeXのtrust=falseを公式資料で確認した。django-axesは公式サイトが403、ほか一部Read the Docs系サイトは接続エラーで取得できず、導入済み版のソース・API・自動テストでも確認した。これら公式サイトでの最新説明の再確認は未完了。ネットワーク制限を変更していない。保守更新は人間がlock更新と全テストで行う。
+DjangoのIMMEDIATE／timeoutとKaTeXのtrust=falseを公式資料で確認した。django-axesなど一部の公式文書は未確認で、導入済み版のソース・API・自動テストで補った。保守更新時には公式文書、lock、全テストを再確認する。
 
 KaTeXのJS・CSS・フォントとMITライセンスは`app/static_src/vendor/katex/`に同梱する。更新は`npm ci --ignore-scripts && npm run assets`。本番はCDN・外部フォント・解析を使わない。Node.jsは数式検証時のみ必要で、Webリクエスト中に起動しない。
 
