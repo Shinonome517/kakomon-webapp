@@ -40,7 +40,6 @@ npm run assets
 科目・年度／実施回・分野は取り込んだデータから選べます。未選択はすべて。復習対象とのANDで絞り込み、元順または保存されたランダムキュー、10・20・50・すべてを選べます。採点後は自動遷移せず、解説を読んで次へ進みます。通信切断時は同じ学習項目・同じ回答だけを再送し、再読み込みでも保存結果を復元します。
 
 独自のバンドルは[JSON Schema](schemas/question-bundle.schema.json)と[合成サンプル](tests/fixtures/synthetic/manifest.json)を参照してください。
-ChatGPT Proで実問題を整理する場合は[取り込み用の指示文](docs/CHATGPT_PRO_QUESTION_PROMPT.md)を使い、生成物を人間が照合してから公開します。
 
 ```sh
 .venv/bin/python app/manage.py import_questions imports/example-bundle --dry-run
