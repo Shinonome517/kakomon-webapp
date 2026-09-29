@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 脆弱性を非公開で報告する
+    url: https://github.com/Shinonome517/kakomon-webapp/security/advisories
+    about: 再現手順や影響範囲は公開Issueに書かず、Report a vulnerabilityから報告してください。
