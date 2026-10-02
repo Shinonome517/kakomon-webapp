@@ -7,15 +7,15 @@
 ```sh
 .venv/bin/python app/manage.py export_snapshot .local/backup-check
 .venv/bin/python app/manage.py restore_snapshot .local/backup-check .local/restore-check
-APP_RUNTIME="$PWD/.local/restore-check" .venv/bin/python app/manage.py check
-APP_RUNTIME="$PWD/.local/restore-check" .venv/bin/python app/manage.py runserver 127.0.0.1:8001
+APP_ENV=development APP_RUNTIME="$PWD/.local/restore-check" APP_DB="$PWD/.local/restore-check/db.sqlite3" .venv/bin/python app/manage.py check
+APP_ENV=development APP_RUNTIME="$PWD/.local/restore-check" APP_DB="$PWD/.local/restore-check/db.sqlite3" .venv/bin/python app/manage.py runserver 127.0.0.1:8001
 ```
 
 `export_snapshot`は稼働中DBを単純コピーせず、SQLiteオンラインバックアップAPIを使う。スナップショットのintegrity_check後、DB参照先の不変画像を集め、SHA-256を検証する。DB・画像・バージョン・manifestが一時ディレクトリにそろってから完了先へ原子的に移す。既存出力先を上書きしない。
 
 `restore_snapshot`はDB・画像のハッシュとintegrityを検証し、存在しない隔離ディレクトリへ復元する。復元DBのセッションは全削除するので全利用者が再ログインする。本番DBへ直接復元しない。アカウント・問題・最新回答集計・画像ハッシュが元と一致することは自動テストで確認した。
 
-復元先でAPP_DBを使う場合は古い本番DBの値を引き継がない。隔離起動後に利用者数、問題数、成績、画像、パスワード再設定を確認し、停止時間・切り戻し先を用意してから人間が本番切替する。元のスナップショットは保管する。
+隔離起動時は`APP_DB`に復元先のDBを明示し、古い本番DBの値を引き継がない。隔離起動後に利用者数、問題数、成績、画像、パスワード再設定を確認し、停止時間・切り戻し先を用意してから人間が本番切替する。元のスナップショットは保管する。
 
 ## 日次の遠隔保存（テンプレート・未接続）
 

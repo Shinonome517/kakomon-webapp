@@ -2,7 +2,7 @@
 
 ## 正本と作業範囲
 
-製品要件は `docs/SPEC.md`、受け入れ基準は `docs/ACCEPTANCE.md` を正本とする。該当する作業で必要な節を読む。`docs/IMPLEMENTATION_PLAN.md` は初版の実装計画、`docs/HANDOFF.md` は初版完了時の記録であり、現在の作業指示ではない。仕様とコードが食い違う場合は仕様に合わせる。
+製品要件は `docs/SPEC.md`、受け入れ基準は `docs/ACCEPTANCE.md` を正本とする。該当する作業で必要な節を読む。仕様とコードが食い違う場合は仕様に合わせる。
 
 この製品は、Django＋SQLiteによる小さなセルフホスト学習アプリである。管理者発行のユーザー名認証、一問ずつの即時採点、各問題の最新有効回答による成績、認証付き画像、JSON取り込み、IPv6 DDNS＋Cloudflareプロキシ、バックアップを維持する。模擬試験、外部認証・DB・AI API、Cloudflare Tunnelなどの機能を先行追加しない。
 
@@ -23,3 +23,9 @@
 - GitHubの脆弱性報告は `SECURITY.md` に従う。未公開の再現手順や影響範囲を公開Issue・PR・ログに書かない。
 
 環境が不足する場合は、実行できる検証を進め、できなかった項目を未検証と明記する。
+
+## 実問題バンドルを扱うとき
+
+形式は`schemas/question-bundle.schema.json`、動作は`app/questions/importer.py`、合成例は`tests/fixtures/synthetic/`を正本として再確認する。完成済みの`R0806-AM/無線工学`はリポジトリ外のgolden sampleであり、実問題・正答・図をリポジトリへ複写しない。過去の照合結果はリポジトリ外の各`review_report.md`と`検証結果一覧.md`で確認する。
+
+問題番号、冊子記号、AM/PMの公式解答欄、選択肢数、図・数式、権利、解説の疑義は原資料と照合する。形式検証やdry-runだけで`verified`にしない。人間の原資料照合と自動検査を分け、未解決の問題は`draft`に残す。実問題バンドルへの書き込みはその作業についてユーザーが明示的に許可した場所に限り、本番importは運用者が行う。
