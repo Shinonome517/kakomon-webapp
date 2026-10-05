@@ -76,7 +76,18 @@ def test_B01_B02_B04_B05_B06_mobile_flow(browser, live_server, seeded, user, wid
         page.locator("#large-image").bounding_box()["width"]
         > page.locator(".zoom-area").bounding_box()["width"]
     )
+    # Native focus restoration can precede the app's queued close handler.
+    page.evaluate(
+        """() => {
+            window.imageDialogClosed = new Promise(resolve => {
+                document.querySelector('dialog').addEventListener(
+                    'close', () => resolve(null), {once: true}
+                );
+            });
+        }"""
+    )
     page.keyboard.press("Escape")
+    page.evaluate("() => window.imageDialogClosed")
     expect(zoom_button).to_be_focused()
     page.locator(".choice[value=second]").focus()
     assert (
