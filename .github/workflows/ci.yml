@@ -4,12 +4,13 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       UV_CACHE_DIR: ${{ github.workspace }}/.cache/uv
       UV_PYTHON_DOWNLOADS: never
       npm_config_cache: ${{ github.workspace }}/.cache/npm
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+      PLAYWRIGHT_EXECUTABLE_PATH: /opt/google/chrome/chrome
       TMPDIR: ${{ github.workspace }}/.local/tmp
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +31,9 @@ jobs:
       - run: uv run python app/manage.py check && uv run python app/manage.py makemigrations --check --dry-run
       - run: uv run ruff check app tests scripts && uv run ruff format --check app tests scripts
       - run: uv run pytest tests --ignore=tests/e2e --basetemp=.local/tmp/pytest -q
-      - run: uv run playwright install --with-deps chromium
+      - name: Check runner Google Chrome
+        run: |
+          test -x "$PLAYWRIGHT_EXECUTABLE_PATH"
+          "$PLAYWRIGHT_EXECUTABLE_PATH" --version
       - run: uv run pytest tests/e2e --basetemp=.local/tmp/e2e -q
       - run: python scripts/check_public.py && git diff --check

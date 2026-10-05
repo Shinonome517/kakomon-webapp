@@ -18,6 +18,8 @@ Python 3.13.15で検証。直接依存と推移依存の正確な固定値・配
 | Playwright | 1.63.0 | 幅別・通信切断・キーボードのE2E定義。 |
 | uv | 0.12.19 | lock再現・仮想環境作成。 |
 
+GitHub ActionsのブラウザE2EはUbuntu 24.04ランナーに導入済みのGoogle Chromeを使う。`PLAYWRIGHT_EXECUTABLE_PATH=/opt/google/chrome/chrome`を指定し、存在とバージョンをCIログで確認する。Chromeの版はランナーの更新に従い、Python/npmのlock対象には含めない。ローカルでは従来どおりPlaywrightのChromium、または明示したテスト用ブラウザを使う。いずれも`chromium_sandbox=True`を維持する。[ランナー仕様](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md)、[ChromiumのAppArmor制限](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md)。
+
 DjangoのIMMEDIATE／timeoutとKaTeXのtrust=falseを公式資料で確認した。django-axesなど一部の公式文書は未確認で、導入済み版のソース・API・自動テストで補った。保守更新時には公式文書、lock、全テストを再確認する。
 
 KaTeXのJS・CSS・フォントとMITライセンスは`app/static_src/vendor/katex/`に同梱する。更新は`npm ci --ignore-scripts && npm run assets`。本番はCDN・外部フォント・解析を使わない。Node.jsは数式検証時のみ必要で、Webリクエスト中に起動しない。
