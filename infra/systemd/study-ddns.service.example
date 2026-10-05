@@ -1,0 +1,14 @@
+[Unit]
+Description=Study IPv6 DDNS (human-configured)
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+User=study-ops
+WorkingDirectory=/srv/study
+EnvironmentFile=/etc/study/ddns.env
+ExecStart=/usr/bin/python3 /srv/study/scripts/ddns.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true

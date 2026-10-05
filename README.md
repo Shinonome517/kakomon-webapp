@@ -1,49 +1,64 @@
-# 一陸特 学習アプリ — 実装スターター
+# 学習ノート
 
-スマートフォンで、一陸特の問題を一問ずつ解き、各問題の最新回答に基づく正答率を確認するセルフホスト型Webアプリ。
+問題データを取り込んで、一問ずつ学習するセルフホストWebアプリです。Django＋SQLiteで動作します。
 
-**このリポジトリは仕様と実装指示のスターターです。アプリ本体はまだ実装されていません。** Codex Astraが以下の文書を読み、実装・テスト・運用テンプレートを追加します。
+- 管理者発行のユーザー名・パスワードでログイン
+- 選択肢を押して即時採点、解説・画像・数式を表示
+- 各問題の最新有効回答による成績、復習、ブックマーク
+- 科目・年度／実施回・分野で絞り込み
+- JSON＋画像の取り込み、バックアップ・隔離復元
 
-## 読む順番
+同梱の6問は自作の動作確認用合成問題です。実問題・PDF・利用者データ・秘密値は含みません。
 
-1. `AGENTS.md` — 作業範囲、安全上の制約、実装の進め方。
-2. `docs/SPEC.md` — 確定要件、設計基準、データ・公開・バックアップの仕様。
-3. `docs/ACCEPTANCE.md` — 完了判定と検証ケース。
-4. `docs/IMPLEMENTATION_PLAN.md` — 実装順序と成果物。
-5. `docs/DECISIONS.md` / `docs/HANDOFF.md` — 判断・進捗・未検証事項。
+## ローカル起動
 
-## 実装基準
-
-Django 5.2 LTSの保守中パッチ版、Python 3.13、SQLite、Djangoテンプレートと小さなJavaScriptを基準とします。認証はDjango標準機構を使用し、初版では別の認証サービス、SPA、Redis、Celeryを導入しません。これは未指定の技術部分に対する設計判断であり、ユーザーがフレームワークを指定したという意味ではありません。
-
-アプリ・DB・画像は同一のセルフホスト機に置きます。外部公開はCloudflareのプロキシ付きAAAAレコードとIPv6 DDNSを使い、Tunnelは使用しません。公開ホスト名、DNS認証情報、SSH情報、バックアップ先などの実値はリポジトリに記載しません。
-
-## 公開するもの／しないもの
-
-公開対象はコード、仕様、テスト、自作の合成テストデータ、秘密値を含まない設定例です。実問題データ、元PDF、切り抜き画像、利用者情報、DB、セッション、バックアップ、個人用の操作メモ、エージェントの実行ログ、実環境の設定は公開しません。
-
-## ライセンス
-
-このリポジトリのソフトウェアは [GNU Affero General Public License v3.0 only](LICENSE)（`AGPL-3.0-only`）です。改変版をネットワーク経由で利用者に提供する場合も、AGPL第13条に従い、対応するソースコードを利用者が取得できるようにしてください。
-
-このライセンスは、公益財団法人日本無線協会その他の第三者が権利を持つ試験問題、解答、PDF、画像、教材、解説には適用されず、それらについて利用許諾を与えるものでもありません。実問題を取り込む場合は、権利者が示す当時の利用条件、対象科目、出典表示その他の条件を個別に確認してください。
-
-問題データの作成・画像切り抜き用の作業指示書は別途作成します。このリポジトリでは取り込み側の契約のみ定めます。実データが未提供でも、自作の合成問題で実装を完了できるようにしてください。
-
-## 公開前の補助チェック
-
-Git初期化後、リポジトリルートから実行します。
+Python 3.13、uv、Node.jsを準備し、リポジトリルートで実行します。
 
 ```sh
-python3 scripts/check_public.py
-git diff --check
-git status --short
+mkdir -p .cache/uv .cache/npm .cache/ms-playwright .local/tmp .local/logs
+export UV_CACHE_DIR="$PWD/.cache/uv"
+export UV_PYTHON_DOWNLOADS=never
+export npm_config_cache="$PWD/.cache/npm"
+export PLAYWRIGHT_BROWSERS_PATH="$PWD/.cache/ms-playwright"
+export TMPDIR="$PWD/.local/tmp"
+uv sync --frozen --python python3.13
+npm ci --ignore-scripts
+npm run assets
+.venv/bin/python app/manage.py migrate
+.venv/bin/python app/manage.py collectstatic --noinput
+.venv/bin/python app/manage.py import_questions tests/fixtures/synthetic --dry-run
+.venv/bin/python app/manage.py import_questions tests/fixtures/synthetic
+.venv/bin/python app/manage.py create_learner --username demo-learner
+.venv/bin/python app/manage.py runserver 127.0.0.1:8000
 ```
 
-`check_public.py`は代表的な秘密ファイル・トークン・個人メモの混入を検出する補助です。あらゆる個人情報を検出するものではありません。差分の目視確認と、実装時に整備する秘密情報スキャンも必要です。
+`http://127.0.0.1:8000/` を開きます。アカウント作成時は12文字以上のパスワードを入力し、初回ログイン後に変更します。公開サインアップはありません。
 
-## 実装後にREADMEへ追加するもの
+独自の問題データは [JSON Schema](schemas/question-bundle.schema.json) と [合成サンプル](tests/fixtures/synthetic/manifest.json) を参照し、`import_questions <バンドルディレクトリ> --dry-run` で確認してから取り込みます。権利と内容を人間が確認した `verified` の問題だけを出題します。
 
-実際に検証したセットアップ、起動、テスト、アカウント発行、問題取り込み、バックアップ、復元の手順を追加してください。まだ存在しないコマンドを「実行済み」「利用可能」と書かないでください。
+## 開発
 
-依存物・同梱資産のライセンス表記は別途保持してください。
+新機能・通常の不具合修正は **Issue起票 → Issue番号付きブランチ → 実装・検証** の順に進めます。ブランチ名は `feat/<Issue番号>-<短い説明>` または `fix/<Issue番号>-<短い説明>`。詳細と操作の境界は [AGENTS.md](AGENTS.md) を参照してください。
+
+製品要件は [SPEC](docs/SPEC.md)、受け入れ条件と検証記録は [ACCEPTANCE](docs/ACCEPTANCE.md) が正本です。
+
+```sh
+.venv/bin/pytest tests --ignore=tests/e2e --basetemp=.local/tmp/pytest -q
+.venv/bin/ruff check app tests scripts
+.venv/bin/ruff format --check app tests scripts
+.venv/bin/python app/manage.py check
+.venv/bin/python app/manage.py makemigrations --check --dry-run
+.venv/bin/python scripts/check_public.py
+git diff --check
+```
+
+ブラウザE2EはPlaywrightを使います。上記のキャッシュ設定で `.venv/bin/playwright install chromium` 後、`.venv/bin/pytest tests/e2e --basetemp=.local/tmp/e2e -q -x` を実行します。既存のテスト用ブラウザは `PLAYWRIGHT_EXECUTABLE_PATH` で指定できます。
+
+## 運用・ライセンス
+
+- [公開手順・設定](docs/DEPLOYMENT.md)：IPv6 DDNS＋Cloudflareプロキシ＋Nginx
+- [バックアップと復元](docs/BACKUP_RESTORE.md)
+- [依存関係](docs/DEPENDENCIES.md)
+- [セキュリティポリシー](SECURITY.md)：未公開の脆弱性は非公開で報告
+
+ソフトウェアは [AGPL-3.0-only](LICENSE) です。ネットワーク提供時は、改変を含む対応ソースを取得できるよう `SOURCE_URL` を設定してください。第三者の問題・解答・教材の利用許諾は含みません。実データ・DB・バックアップ・秘密値はGitに含めないでください。本番構成の実機検証は未実施です。

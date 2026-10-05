@@ -1,0 +1,2 @@
+{{ form.non_field_errors }}
+{% for field in form %}<div class="field">{% if field.name == 'subjects' or field.name == 'papers' or field.name == 'topics' %}<details><summary>{{ field.label }} <span class="muted">（未選択はすべて）</span></summary>{{ field }}</details>{% else %}{{ field.label_tag }}{{ field }}{% endif %}{{ field.errors }}</div>{% endfor %}

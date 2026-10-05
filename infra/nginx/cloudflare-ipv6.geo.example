@@ -1,0 +1,4 @@
+# Intentionally empty: deny all until a human installs current Cloudflare IPv6 ranges.
+# Format: <verified IPv6 CIDR> 1;
+# Official list: https://www.cloudflare.com/ips-v6/
+# Keep the previous verified file if an update fails. Never set default 1.

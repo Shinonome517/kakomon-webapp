@@ -1,0 +1,610 @@
+{
+  "schema_version": 1,
+  "bundle_id": "synthetic-demo-v1",
+  "papers": [
+    {
+      "code": "synthetic-1",
+      "qualification_code": "rikutoku1",
+      "exam_year": 2026,
+      "session_code": "demo-1",
+      "session_label": "合成データ 1回",
+      "subject": "無線工学",
+      "sort_key": "2026-01-01"
+    },
+    {
+      "code": "synthetic-2",
+      "qualification_code": "rikutoku1",
+      "exam_year": 2026,
+      "session_code": "demo-2",
+      "session_label": "合成データ 2回",
+      "subject": "法規",
+      "sort_key": "2026-02-01"
+    }
+  ],
+  "topics": [
+    {
+      "code": "basic",
+      "subject": "無線工学",
+      "label": "動作確認・計算",
+      "sort_order": 1
+    },
+    {
+      "code": "rules",
+      "subject": "法規",
+      "label": "動作確認・文章",
+      "sort_order": 2
+    }
+  ],
+  "questions": [
+    {
+      "stable_id": "synthetic-01",
+      "exam_id": "synthetic-1",
+      "number": 1,
+      "topic_id": "basic",
+      "question_type": "single_choice",
+      "stem_blocks": [
+        {
+          "type": "markdown",
+          "text": "**合成問題 1**：図は動作確認用です。$R = 10\\,\\Omega$ として、$2 + 3$ の値を選んでください。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-1",
+          "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "choices": [
+        {
+          "choice_id": "first",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "4"
+            },
+            {
+              "type": "image",
+              "asset_id": "figure-1",
+              "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+            }
+          ]
+        },
+        {
+          "choice_id": "second",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "5"
+            }
+          ]
+        },
+        {
+          "choice_id": "third",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "6"
+            }
+          ]
+        }
+      ],
+      "correct_choice_id": "second",
+      "explanation_blocks": [
+        {
+          "type": "markdown",
+          "text": "解説専用テキスト：2に3を加えると5になります。\n\n$$2 + 3 = 5$$"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-3",
+          "alt": "自作の接続図 3。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "assets": [
+        {
+          "asset_id": "figure-1",
+          "path": "assets/figure-1.png"
+        },
+        {
+          "asset_id": "figure-2",
+          "path": "assets/figure-2.png"
+        },
+        {
+          "asset_id": "figure-3",
+          "path": "assets/figure-3.png"
+        }
+      ],
+      "status": "verified",
+      "metadata": {
+        "source": "自作の合成問題。動作確認用・試験対策用ではない。",
+        "ai_generated": true,
+        "reviewed": true,
+        "synthetic": true
+      }
+    },
+    {
+      "stable_id": "synthetic-02",
+      "exam_id": "synthetic-1",
+      "number": 2,
+      "topic_id": "basic",
+      "question_type": "single_choice",
+      "stem_blocks": [
+        {
+          "type": "markdown",
+          "text": "**合成問題 2**：図は動作確認用です。$R = 10\\,\\Omega$ として、$2 + 3$ の値を選んでください。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-1",
+          "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "choices": [
+        {
+          "choice_id": "first",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "4"
+            },
+            {
+              "type": "image",
+              "asset_id": "figure-1",
+              "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+            }
+          ]
+        },
+        {
+          "choice_id": "second",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "5"
+            }
+          ]
+        },
+        {
+          "choice_id": "third",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "6"
+            }
+          ]
+        }
+      ],
+      "correct_choice_id": "second",
+      "explanation_blocks": [
+        {
+          "type": "markdown",
+          "text": "解説専用テキスト：2に3を加えると5になります。\n\n$$2 + 3 = 5$$"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-3",
+          "alt": "自作の接続図 3。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "assets": [
+        {
+          "asset_id": "figure-1",
+          "path": "assets/figure-1.png"
+        },
+        {
+          "asset_id": "figure-2",
+          "path": "assets/figure-2.png"
+        },
+        {
+          "asset_id": "figure-3",
+          "path": "assets/figure-3.png"
+        }
+      ],
+      "status": "verified",
+      "metadata": {
+        "source": "自作の合成問題。動作確認用・試験対策用ではない。",
+        "ai_generated": true,
+        "reviewed": true,
+        "synthetic": true
+      }
+    },
+    {
+      "stable_id": "synthetic-03",
+      "exam_id": "synthetic-1",
+      "number": 3,
+      "topic_id": "basic",
+      "question_type": "single_choice",
+      "stem_blocks": [
+        {
+          "type": "markdown",
+          "text": "**合成問題 3**：図は動作確認用です。$R = 10\\,\\Omega$ として、$2 + 3$ の値を選んでください。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-1",
+          "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "choices": [
+        {
+          "choice_id": "first",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "4"
+            },
+            {
+              "type": "image",
+              "asset_id": "figure-1",
+              "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+            }
+          ]
+        },
+        {
+          "choice_id": "second",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "5"
+            }
+          ]
+        },
+        {
+          "choice_id": "third",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "6"
+            }
+          ]
+        }
+      ],
+      "correct_choice_id": "second",
+      "explanation_blocks": [
+        {
+          "type": "markdown",
+          "text": "解説専用テキスト：2に3を加えると5になります。\n\n$$2 + 3 = 5$$"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-3",
+          "alt": "自作の接続図 3。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "assets": [
+        {
+          "asset_id": "figure-1",
+          "path": "assets/figure-1.png"
+        },
+        {
+          "asset_id": "figure-2",
+          "path": "assets/figure-2.png"
+        },
+        {
+          "asset_id": "figure-3",
+          "path": "assets/figure-3.png"
+        }
+      ],
+      "status": "verified",
+      "metadata": {
+        "source": "自作の合成問題。動作確認用・試験対策用ではない。",
+        "ai_generated": true,
+        "reviewed": true,
+        "synthetic": true
+      }
+    },
+    {
+      "stable_id": "synthetic-04",
+      "exam_id": "synthetic-2",
+      "number": 1,
+      "topic_id": "rules",
+      "question_type": "single_choice",
+      "stem_blocks": [
+        {
+          "type": "markdown",
+          "text": "**合成問題 4**：図は動作確認用です。$R = 10\\,\\Omega$ として、$2 + 3$ の値を選んでください。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-1",
+          "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "choices": [
+        {
+          "choice_id": "first",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "4"
+            },
+            {
+              "type": "image",
+              "asset_id": "figure-1",
+              "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+            }
+          ]
+        },
+        {
+          "choice_id": "second",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "5"
+            }
+          ]
+        },
+        {
+          "choice_id": "third",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "6"
+            }
+          ]
+        }
+      ],
+      "correct_choice_id": "second",
+      "explanation_blocks": [
+        {
+          "type": "markdown",
+          "text": "解説専用テキスト：2に3を加えると5になります。\n\n$$2 + 3 = 5$$"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-3",
+          "alt": "自作の接続図 3。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "assets": [
+        {
+          "asset_id": "figure-1",
+          "path": "assets/figure-1.png"
+        },
+        {
+          "asset_id": "figure-2",
+          "path": "assets/figure-2.png"
+        },
+        {
+          "asset_id": "figure-3",
+          "path": "assets/figure-3.png"
+        }
+      ],
+      "status": "verified",
+      "metadata": {
+        "source": "自作の合成問題。動作確認用・試験対策用ではない。",
+        "ai_generated": true,
+        "reviewed": true,
+        "synthetic": true
+      }
+    },
+    {
+      "stable_id": "synthetic-05",
+      "exam_id": "synthetic-2",
+      "number": 2,
+      "topic_id": "rules",
+      "question_type": "single_choice",
+      "stem_blocks": [
+        {
+          "type": "markdown",
+          "text": "**合成問題 5**：図は動作確認用です。$R = 10\\,\\Omega$ として、$2 + 3$ の値を選んでください。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-1",
+          "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "choices": [
+        {
+          "choice_id": "first",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "4"
+            },
+            {
+              "type": "image",
+              "asset_id": "figure-1",
+              "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+            }
+          ]
+        },
+        {
+          "choice_id": "second",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "5"
+            }
+          ]
+        },
+        {
+          "choice_id": "third",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "6"
+            }
+          ]
+        }
+      ],
+      "correct_choice_id": "second",
+      "explanation_blocks": [
+        {
+          "type": "markdown",
+          "text": "解説専用テキスト：2に3を加えると5になります。\n\n$$2 + 3 = 5$$"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-3",
+          "alt": "自作の接続図 3。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "assets": [
+        {
+          "asset_id": "figure-1",
+          "path": "assets/figure-1.png"
+        },
+        {
+          "asset_id": "figure-2",
+          "path": "assets/figure-2.png"
+        },
+        {
+          "asset_id": "figure-3",
+          "path": "assets/figure-3.png"
+        }
+      ],
+      "status": "verified",
+      "metadata": {
+        "source": "自作の合成問題。動作確認用・試験対策用ではない。",
+        "ai_generated": true,
+        "reviewed": true,
+        "synthetic": true
+      }
+    },
+    {
+      "stable_id": "synthetic-06",
+      "exam_id": "synthetic-2",
+      "number": 3,
+      "topic_id": "rules",
+      "question_type": "single_choice",
+      "stem_blocks": [
+        {
+          "type": "markdown",
+          "text": "**合成問題 6**：図は動作確認用です。$R = 10\\,\\Omega$ として、$2 + 3$ の値を選んでください。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-1",
+          "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "choices": [
+        {
+          "choice_id": "first",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "4"
+            },
+            {
+              "type": "image",
+              "asset_id": "figure-1",
+              "alt": "自作の接続図 1。長方形の部品を線でつないだ図。"
+            }
+          ]
+        },
+        {
+          "choice_id": "second",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "5"
+            }
+          ]
+        },
+        {
+          "choice_id": "third",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "6"
+            }
+          ]
+        }
+      ],
+      "correct_choice_id": "second",
+      "explanation_blocks": [
+        {
+          "type": "markdown",
+          "text": "解説専用テキスト：2に3を加えると5になります。\n\n$$2 + 3 = 5$$"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-3",
+          "alt": "自作の接続図 3。長方形の部品を線でつないだ図。"
+        },
+        {
+          "type": "image",
+          "asset_id": "figure-2",
+          "alt": "自作の接続図 2。長方形の部品を線でつないだ図。"
+        }
+      ],
+      "assets": [
+        {
+          "asset_id": "figure-1",
+          "path": "assets/figure-1.png"
+        },
+        {
+          "asset_id": "figure-2",
+          "path": "assets/figure-2.png"
+        },
+        {
+          "asset_id": "figure-3",
+          "path": "assets/figure-3.png"
+        }
+      ],
+      "status": "verified",
+      "metadata": {
+        "source": "自作の合成問題。動作確認用・試験対策用ではない。",
+        "ai_generated": true,
+        "reviewed": true,
+        "synthetic": true
+      }
+    }
+  ]
+}
