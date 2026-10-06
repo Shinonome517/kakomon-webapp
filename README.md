@@ -52,7 +52,7 @@ npm run assets
 git diff --check
 ```
 
-ブラウザE2EはPlaywrightを使います。上記のキャッシュ設定で `.venv/bin/playwright install chromium` 後、`.venv/bin/pytest tests/e2e --basetemp=.local/tmp/e2e -q -x` を実行します。既存のテスト用ブラウザは `PLAYWRIGHT_EXECUTABLE_PATH` で指定できます。
+ブラウザE2EはPlaywrightを使います。上記のキャッシュ設定で `.venv/bin/playwright install chromium` 後、`.venv/bin/pytest tests/e2e --basetemp=.local/tmp/e2e -q -x` を実行します。既存のChromium系テスト用ブラウザは `PLAYWRIGHT_EXECUTABLE_PATH` で指定できます。WebKitをインストール済みなら `PLAYWRIGHT_BROWSER=webkit .venv/bin/pytest tests/e2e --basetemp=.local/tmp/e2e-webkit -q` で同じケースを検証できます。
 
 ## 運用・ライセンス
 

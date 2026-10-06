@@ -12,30 +12,61 @@ from .models import AnswerAttempt, Bookmark
 from .services import StudyError, owned_item, question_set, start_session, statistics, submit_answer
 
 
-def valid_form(request):
+def valid_form(request, *, for_stats=False):
     data = request.POST if request.method == "POST" else request.GET
-    if not data:
-        data = {"target": "all", "ordering": "ordered", "count": "10"}
-    return StudyForm(data)
+    return StudyForm(data, for_stats=for_stats, select_all=request.method == "GET" and not data)
+
+
+def filter_context(user, form, *, for_stats=False):
+    context = {"form": form, "count": 0}
+    if not form.is_valid():
+        return context
+    questions = question_set(user, form.cleaned_data)
+    if not for_stats:
+        context["count"] = questions.count()
+        return context
+    questions = list(questions)
+    subjects, topics = defaultdict(list), defaultdict(list)
+    for question in questions:
+        subjects[question.exam_paper.subject].append(question)
+        topics[question.topic_id].append(question)
+    context.update(
+        stats=statistics(questions),
+        subjects=[(name, statistics(items)) for name, items in subjects.items()],
+        topic_groups=[
+            {
+                "subject": name,
+                "stats": statistics(items),
+                "topics": [
+                    (topic, statistics(topics[topic.pk]))
+                    for topic in sorted(
+                        {q.topic for q in items},
+                        key=lambda topic: (topic.sort_order, topic.label, topic.pk),
+                    )
+                ],
+            }
+            for name, items in subjects.items()
+        ],
+        revised_count=sum(q.has_history and q.latest_correct is None for q in questions),
+    )
+    return context
 
 
 def home(request):
     form = valid_form(request)
-    count = 0
-    if form.is_valid():
-        count = question_set(request.user, form.cleaned_data).count()
-        if request.method == "POST":
-            try:
-                session = start_session(
-                    request.user,
-                    form.cleaned_data,
-                    form.cleaned_data["ordering"],
-                    form.cleaned_data["count"],
-                )
-                return redirect("item", item_id=session.items.first().pk)
-            except StudyError as exc:
-                form.add_error(None, str(exc))
-    return render(request, "home.html", {"form": form, "count": count})
+    context = filter_context(request.user, form)
+    if request.method == "POST" and form.is_valid():
+        try:
+            session = start_session(
+                request.user,
+                form.cleaned_data,
+                form.cleaned_data["ordering"],
+                form.cleaned_data["count"],
+            )
+            return redirect("item", item_id=session.items.first().pk)
+        except StudyError as exc:
+            form.add_error(None, str(exc))
+    return render(request, "home.html", context)
 
 
 def item_context(item, user):
@@ -45,6 +76,7 @@ def item_context(item, user):
         "revision": item.revision,
         "answer": answer,
         "next_item": item.session.items.filter(position__gt=item.position).first(),
+        "previous_item": item.session.items.filter(position=item.position - 1).first(),
         "bookmarked": Bookmark.objects.filter(user=user, question=item.revision.question).exists(),
         "revised": item.revision.grading_version != item.revision.question.grading_version,
     }
@@ -60,7 +92,14 @@ def item(request, item_id):
 def answer(request, item_id):
     status, message = 200, ""
     try:
-        submit_answer(request.user, item_id, request.POST.get("choice", ""))
+        if request.POST.get("unknown") not in (None, "1"):
+            raise StudyError("回答の送信内容が不正です。")
+        submit_answer(
+            request.user,
+            item_id,
+            request.POST.get("choice", ""),
+            is_unknown=request.POST.get("unknown") == "1",
+        )
     except StudyError as exc:
         status, message = exc.status, str(exc)
     if request.headers.get("Accept") == "application/json":
@@ -99,24 +138,23 @@ def bookmark(request, item_id):
 
 @require_GET
 def stats(request):
-    form = valid_form(request)
-    if not form.is_valid():
-        return render(request, "home.html", {"form": form, "count": 0}, status=400)
-    questions = list(question_set(request.user, form.cleaned_data))
-    subjects, topics = defaultdict(list), defaultdict(list)
-    for q in questions:
-        subjects[q.exam_paper.subject].append(q)
-        topics[f"{q.exam_paper.subject} / {q.topic.label}"].append(q)
-    return render(
-        request,
-        "stats.html",
+    form = valid_form(request, for_stats=True)
+    context = filter_context(request.user, form, for_stats=True)
+    return render(request, "stats.html", context, status=400 if form.errors else 200)
+
+
+@require_GET
+def filter_preview(request, kind):
+    form = StudyForm(request.GET, for_stats=kind == "stats")
+    context = filter_context(request.user, form, for_stats=kind == "stats")
+    return JsonResponse(
         {
-            "stats": statistics(questions),
-            "subjects": [(k, statistics(v)) for k, v in subjects.items()],
-            "topics": [(k, statistics(v)) for k, v in topics.items()],
-            "revised_count": sum(q.has_history and q.latest_correct is None for q in questions),
-            "form": form,
+            "html": render_to_string(f"{kind}_preview.html", context, request=request),
+            "valid": not bool(form.errors),
+            "errors": form.errors,
+            "count": context["count"],
         },
+        status=400 if form.errors else 200,
     )
 
 

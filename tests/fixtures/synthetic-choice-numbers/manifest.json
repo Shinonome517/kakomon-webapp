@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "bundle_id": "synthetic-choice-numbers",
+  "papers": [
+    {
+      "code": "synthetic-table",
+      "qualification_code": "synthetic",
+      "exam_year": 2026,
+      "session_code": "table",
+      "session_label": "合成データ・表",
+      "subject": "動作確認",
+      "sort_key": "2026-01-01"
+    }
+  ],
+  "topics": [
+    {
+      "code": "table",
+      "subject": "動作確認",
+      "label": "組合せ表の表示",
+      "sort_order": 1
+    }
+  ],
+  "questions": [
+    {
+      "stable_id": "synthetic-table-01",
+      "exam_id": "synthetic-table",
+      "number": 1,
+      "topic_id": "table",
+      "question_type": "single_choice",
+      "stem_blocks": [
+        {
+          "type": "markdown",
+          "text": "動作確認用の合成問題です。$A = 2$、$B = 3$ の組合せを選んでください。"
+        },
+        {
+          "type": "image",
+          "asset_id": "table",
+          "alt": "組合せ表。選択肢1はAが2、Bが3。選択肢2はAが3、Bが2。"
+        }
+      ],
+      "choices": [
+        {
+          "choice_id": "first",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "Aは2、Bは3。$A + B = 5$。"
+            }
+          ]
+        },
+        {
+          "choice_id": "second",
+          "blocks": [
+            {
+              "type": "markdown",
+              "text": "Aは3、Bは2。"
+            },
+            {
+              "type": "image",
+              "asset_id": "table",
+              "alt": "合成の組合せ表。2番はAが3、Bが2。"
+            }
+          ]
+        }
+      ],
+      "correct_choice_id": "first",
+      "explanation_blocks": [
+        {
+          "type": "markdown",
+          "text": "指定した組合せは1番です。"
+        }
+      ],
+      "assets": [
+        {
+          "asset_id": "table",
+          "path": "assets/table.png"
+        }
+      ],
+      "status": "verified",
+      "metadata": {
+        "source": "自作の合成問題。動作確認用・試験対策用ではない。",
+        "ai_generated": true,
+        "reviewed": true,
+        "synthetic": true,
+        "choice_numbers_only": true
+      }
+    }
+  ]
+}

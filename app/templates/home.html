@@ -1,1 +1,16 @@
-{% extends 'base.html' %}{% block content %}<p class="eyebrow">PRACTICE / 学習・復習</p><h1>今日も、一問から。</h1><p>範囲を選んで、自分のペースで学びましょう。</p><section class="card"><h2>出題設定</h2><form method="get" id="study-settings">{% include 'filters.html' %}<button class="secondary" type="submit">条件を適用</button><p class="count">対象 <strong>{{ count }}</strong> 問</p>{% if count == 0 %}<p role="status">条件に合う問題がありません。条件を広げてください。</p>{% endif %}<button class="primary" type="submit" formmethod="post" name="csrfmiddlewaretoken" value="{{ csrf_token }}" {% if count == 0 %}disabled{% endif %}>学習をはじめる</button></form></section><aside class="soft"><h2>復習のヒント</h2><p>「最終不正解」「未回答」「ブックマーク」から選べます。成績は各問題の最新回答だけで計算します。</p></aside>{% endblock %}
+{% extends 'base.html' %}
+{% block content %}
+<p class="eyebrow">PRACTICE / 学習・復習</p>
+<h1>今日も一問から始めましょう。</h1>
+<p>範囲を選んで、自分のペースで学びましょう。</p>
+<section class="card">
+  <h2>出題設定</h2>
+  <form method="get" id="study-settings" data-preview-url="{% url 'home-preview' %}">
+    {% if form.has_questions %}{% include 'filters.html' %}<button class="secondary" type="submit" data-apply>条件を適用</button>{% endif %}
+    <p data-preview-status role="status"></p>
+    <div id="filter-preview">{% include 'home_preview.html' %}</div>
+    <button class="primary" type="submit" formmethod="post" name="csrfmiddlewaretoken" value="{{ csrf_token }}" data-start {% if not count or form.errors %}disabled{% endif %}>学習を始める</button>
+  </form>
+</section>
+<aside class="soft"><h2>復習のヒント</h2><p>「最後に間違えた問題」「未回答」「ブックマーク」から選べます。正答率は各問題の最新回答だけで計算します。</p></aside>
+{% endblock %}

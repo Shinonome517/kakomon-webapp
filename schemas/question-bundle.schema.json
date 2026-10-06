@@ -336,6 +336,9 @@
               },
               "synthetic": {
                 "type": "boolean"
+              },
+              "choice_numbers_only": {
+                "type": "boolean"
               }
             },
             "required": [

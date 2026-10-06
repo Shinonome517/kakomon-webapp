@@ -8,7 +8,7 @@ from accounts.models import User
 
 
 class Command(BaseCommand):
-    help = "利用者を発行（パスワードは非表示の対話入力）"
+    help = "利用者アカウントを作成します（パスワードは非表示で入力）。"
 
     def add_arguments(self, parser):
         parser.add_argument("--username", required=True)
@@ -19,10 +19,12 @@ class Command(BaseCommand):
             user.full_clean(exclude=["password"])
             password = getpass("仮パスワード: ")
             if password != getpass("再入力: "):
-                raise CommandError("パスワードが一致しません")
+                raise CommandError("パスワードが一致しません。")
             validate_password(password, user)
             user.set_password(password)
             user.save()
         except ValidationError as exc:
             raise CommandError(" / ".join(exc.messages)) from exc
-        self.stdout.write("利用者を発行しました。初回変更が必要です。")
+        self.stdout.write(
+            "利用者アカウントを作成しました。初回ログイン時にパスワードの変更が必要です。"
+        )

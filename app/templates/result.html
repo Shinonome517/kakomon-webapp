@@ -1,1 +1,12 @@
-{% load content %}{% if answer and not revised %}<section class="result"><h2>{% if answer.is_correct %}○ 正解{% else %}× 不正解{% endif %}</h2><p>あなたの回答：{% for choice in revision.choices %}{% if choice.choice_id == answer.selected_choice_id %}選択肢 {{ forloop.counter }}{% endif %}{% endfor %} ／ 正解：{% for choice in revision.choices %}{% if choice.choice_id == revision.correct_choice_id %}選択肢 {{ forloop.counter }}{% endif %}{% endfor %}</p><h3>解説</h3>{% blocks revision.explanation_blocks item 'explanation' %}</section><div class="next">{% if next_item %}<a class="button primary" href="{% url 'item' next_item.pk %}">次の問題</a>{% else %}<p>このセットは完了です。</p><a class="button primary" href="/stats/">成績を見る</a>{% endif %}<a class="button secondary" href="/">出題設定へ・解き直す</a></div>{% endif %}
+{% load content %}{% if answer and not revised %}
+<section class="result">
+<h2>{% if answer.is_correct %}○ 正解{% else %}× 不正解{% endif %}</h2>
+<p>あなたの回答：{% if answer.is_unknown %}わからない（不正解として記録）{% else %}{% for choice in revision.choices %}{% if choice.choice_id == answer.selected_choice_id %}選択肢 {{ forloop.counter }}{% endif %}{% endfor %}{% endif %} ／ 正解：{% for choice in revision.choices %}{% if choice.choice_id == revision.correct_choice_id %}選択肢 {{ forloop.counter }}{% endif %}{% endfor %}</p>
+<h3>解説</h3>{% blocks revision.explanation_blocks item 'explanation' %}
+{% if not next_item %}<p class="completion">このセットは完了です。</p>{% endif %}
+</section>
+<div class="next">
+<a class="button secondary" href="/">出題設定へ・解き直す</a>
+{% if previous_item %}<a class="button secondary" href="{% url 'item' previous_item.pk %}">前の問題</a>{% endif %}
+{% if next_item %}<a class="button primary" href="{% url 'item' next_item.pk %}">次の問題</a>{% else %}<a class="button primary" href="/stats/">学習の記録を見る</a>{% endif %}
+</div>{% endif %}

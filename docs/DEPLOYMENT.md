@@ -13,6 +13,10 @@ Cloudflareのプロキシ付きAAAA → IPv6:443のホストNginx → ループ�
 3. `runtime/`をUID/GID 10001が読書きできるよう人間が準備。DB・mediaはローカルSSDに永続化し、NFS/SMB/同期フォルダーへ置かない。Composeのホスト公開は`127.0.0.1:18080`のみ。初回migration、管理CLI、importは同じDB・mediaに対して実行する。Composeコンテナ再作成で保持されることを実機確認する。
 4. コンテナの構築・migration・起動は人間が行う。`Dockerfile`と`compose.yaml`のビルド・起動は未検証。`collectstatic`はビルド時、migrationは運用者の明示操作に分けている。
 
+## 更新時のマイグレーション
+
+「わからない」回答の追加（#22）には `learning.0002_answerattempt_is_unknown` の適用が必要です。運用者がバックアップを確認したうえで、更新先の環境で `python app/manage.py migrate` を実行します。既存回答の `is_unknown` はFalseとなり、採点結果と履歴は維持されます。表示指定 `metadata.choice_numbers_only` の追加にはDB変更はありません。
+
 ## Nginx／Cloudflare
 
 - `infra/nginx/study.conf.example`を読む。`server_name`・証明書の位置を設定し、Nginxの静的検査後に適用する。未知のHostは拒否。実IPモジュールを有効にせず、`geo`で元のソケット接続元を判定する。

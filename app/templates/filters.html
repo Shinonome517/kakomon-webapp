@@ -1,2 +1,8 @@
-{{ form.non_field_errors }}
-{% for field in form %}<div class="field">{% if field.name == 'subjects' or field.name == 'papers' or field.name == 'topics' %}<details><summary>{{ field.label }} <span class="muted">（未選択はすべて）</span></summary>{{ field }}</details>{% else %}{{ field.label_tag }}{{ field }}{% endif %}{{ field.errors }}</div>{% endfor %}
+{% for field in form %}
+<div class="field">
+  {% if field.name == 'subjects' or field.name == 'papers' or field.name == 'topics' %}
+  <details><summary>{{ field.label }} <span class="muted">（1つ以上選択）</span></summary>{{ field }}</details>
+  {% else %}{{ field.label_tag }}{{ field }}{% endif %}
+  <div class="error" id="{{ field.auto_id }}_error" data-field-errors="{{ field.name }}">{% for error in field.errors %}<p>{{ error }}</p>{% endfor %}</div>
+</div>
+{% endfor %}

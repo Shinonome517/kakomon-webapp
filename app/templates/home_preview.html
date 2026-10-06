@@ -1,0 +1,7 @@
+{% include 'filter_errors.html' %}
+{% if not form.has_questions %}
+<p role="status">学習できる問題がまだありません。</p>
+{% elif not form.errors %}
+<p class="count">対象 <strong>{{ count }}</strong> 問</p>
+{% if count == 0 %}<p role="status">条件に合う問題がありません。条件を広げてください。</p>{% endif %}
+{% endif %}

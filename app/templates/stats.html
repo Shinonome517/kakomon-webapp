@@ -1,1 +1,16 @@
-{% extends 'base.html' %}{% block content %}<p class="eyebrow">PROGRESS / 最新の理解度</p><h1>学習の記録</h1><section class="card"><p>最新回答正答率</p><p class="rate">{{ stats.rate }}</p><p>正解 {{ stats.correct }} / 回答済み {{ stats.answered }} 問</p><p>学習進捗 {{ stats.answered }} / 対象 {{ stats.total }} 問</p><p class="muted">各問題の最新の有効回答だけで計算。未回答は正答率に含みません。</p>{% if revised_count %}<p>改訂のため再学習：{{ revised_count }} 問</p>{% endif %}</section><section class="card"><h2>科目別</h2>{% for name,s in subjects %}<p>{{ name }}：<strong>{{ s.rate }}</strong>（{{ s.correct }}/{{ s.answered }}・学習済み {{ s.answered }}/{{ s.total }}）</p>{% empty %}<p>まだ対象の問題がありません。</p>{% endfor %}<h2>分野別</h2>{% for name,s in topics %}<p>{{ name }}：<strong>{{ s.rate }}</strong>（{{ s.correct }}/{{ s.answered }}・学習済み {{ s.answered }}/{{ s.total }}）</p>{% endfor %}</section><section class="card"><h2>集計する範囲</h2><form method="get">{% include 'filters.html' %}<button>条件を適用</button></form></section>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}学習の記録 | 一陸特 学習ノート{% endblock %}
+{% block content %}
+<p class="eyebrow">PROGRESS / 最新の理解度</p>
+<h1>学習の記録</h1>
+<p data-preview-status role="status"></p>
+<div id="filter-preview">{% include 'stats_preview.html' %}</div>
+{% if form.has_questions %}
+<section class="card">
+  <h2>集計する範囲</h2>
+  <form method="get" id="stats-settings" data-preview-url="{% url 'stats-preview' %}">
+    {% include 'filters.html' %}<button type="submit" data-apply>条件を適用</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

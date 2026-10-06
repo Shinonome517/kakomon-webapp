@@ -11,7 +11,7 @@ class AccessMiddleware:
         api = request.path.startswith("/api/")
         if not public and not request.user.is_authenticated:
             response = (
-                JsonResponse({"error": "ログインしてください"}, status=401)
+                JsonResponse({"error": "ログインしてください。"}, status=401)
                 if api
                 else redirect("login")
             )
@@ -21,7 +21,7 @@ class AccessMiddleware:
             and request.path not in {"/password/", "/logout/"}
         ):
             response = (
-                JsonResponse({"error": "パスワードを変更してください"}, status=403)
+                JsonResponse({"error": "パスワードを変更してください。"}, status=403)
                 if api
                 else redirect("password")
             )
