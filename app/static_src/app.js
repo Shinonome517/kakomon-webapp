@@ -168,6 +168,19 @@ if (filterForm) {
     }
   }
   filterForm.addEventListener('change', updatePreview);
+  if (filterForm.id === 'study-settings') {
+    const topics = filterForm.querySelector('#id_topics');
+    if (topics) {
+      const clear = document.createElement('button');
+      clear.type = 'button';
+      clear.textContent = 'すべて外す';
+      clear.addEventListener('click', () => {
+        topics.querySelectorAll('input[type="checkbox"]').forEach(input => input.checked = false);
+        updatePreview();
+      });
+      topics.before(clear);
+    }
+  }
   filterForm.addEventListener('submit', event => {
     if (event.submitter?.hasAttribute('data-start')) return;
     event.preventDefault();

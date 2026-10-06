@@ -134,11 +134,22 @@ def test_B01_B02_B04_B05_B06_mobile_flow(browser, live_server, width):
     expect(page.locator("#send-status")).to_be_empty()
     expect(page.locator(".katex-display")).to_be_visible()
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    primary = page.get_by_role("link", name="次の問題", exact=True).bounding_box()
+    container = page.locator("#result .next").bounding_box()
+    first_offset = primary["y"] - container["y"]
     screenshot(page, f"study-{width}")
     page.get_by_role("link", name="次の問題", exact=True).click()
     expect(page.get_by_role("heading", name="2 / 3 問目")).to_be_visible()
+    page.locator(".choice").first.click()
+    expect(page.get_by_role("link", name="次の問題", exact=True)).to_be_visible()
+    previous = page.get_by_role("link", name="前の問題", exact=True).bounding_box()
+    primary = page.get_by_role("link", name="次の問題", exact=True).bounding_box()
+    container = page.locator("#result .next").bounding_box()
+    assert abs(previous["y"] - primary["y"]) <= 2
+    assert abs(primary["y"] - container["y"] - first_offset) <= 2
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     page.get_by_role("link", name="学習の記録", exact=True).click()
-    expect(page.locator(".rate")).to_have_text("100.0%")
+    expect(page.locator(".rate")).to_have_text("50.0%")
     assert not errors
     context.close()
 
@@ -237,8 +248,8 @@ def test_long_result_scroll_completion_and_button_order(long_session, browser, l
     page.locator('[name="unknown"]').click()
     expect(page.locator(".completion")).to_have_text("このセットは完了です。")
     assert page.locator(".completion").evaluate("e => e.closest('[role=status]') !== null")
-    links = page.locator("#result .next a")
-    expect(links).to_have_text(["出題設定へ・解き直す", "前の問題", "学習の記録を見る"])
+    links = page.locator("#result .settings-link, #result .next a")
+    expect(links).to_have_text(["出題設定へ", "前の問題", "学習の記録を見る"])
     assert page.locator(".completion").bounding_box()["y"] < links.first.bounding_box()["y"]
     # macOS WebKit uses Option-Tab to include links in native keyboard navigation.
     tab_key = (
@@ -249,6 +260,8 @@ def test_long_result_scroll_completion_and_button_order(long_session, browser, l
     expect(links.nth(1)).to_be_focused()
     page.keyboard.press(tab_key)
     expect(links.nth(2)).to_be_focused()
+    assert abs(links.nth(1).bounding_box()["y"] - links.nth(2).bounding_box()["y"]) <= 2
+    assert all(link.bounding_box()["height"] >= 44 for link in links.all())
     primary = links.nth(2).bounding_box()
     container = page.locator("#result .next").bounding_box()
     assert abs(primary["x"] + primary["width"] - container["x"] - container["width"]) <= 2
@@ -355,6 +368,33 @@ def test_late_filter_response_does_not_replace_newer_result(browser, live_server
     page.evaluate("() => window.resolvePreview(0, 0)")
     expect(page.locator(".count strong")).to_have_text("6")
     expect(page.get_by_role("button", name="学習を始める")).to_be_enabled()
+    context.close()
+
+
+@pytest.mark.parametrize("width", [360, 390])
+def test_clear_topics_and_reselect(browser, live_server, width):
+    context = browser.new_context(viewport={"width": width, "height": 850})
+    page = context.new_page()
+    login(page, live_server.url)
+    page.locator("#study-settings summary").filter(has_text="分野").click()
+    clear = page.get_by_role("button", name="すべて外す", exact=True)
+    assert clear.bounding_box()["height"] >= 44
+    clear.focus()
+    clear.press("Enter")
+    expect(page.locator("#id_topics_error")).to_contain_text("分野を1つ以上選んでください。")
+    expect(clear).to_be_focused()
+    assert page.locator('[name="topics"]:checked').count() == 0
+    assert (
+        page.locator('[name="subjects"]:not(:checked), [name="papers"]:not(:checked)').count() == 0
+    )
+    expect(page.get_by_role("button", name="学習を始める")).to_be_disabled()
+    expect(page.locator(".count")).to_have_count(0)
+    page.locator('[name="topics"]').first.check()
+    expect(page.locator("#id_topics_error")).to_be_empty()
+    expect(page.locator(".count strong")).to_have_text("3")
+    expect(page.get_by_role("button", name="学習を始める")).to_be_enabled()
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    screenshot(page, f"clear-topics-{width}")
     context.close()
 
 
