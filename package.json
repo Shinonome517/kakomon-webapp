@@ -1,1 +1,1 @@
-{"private":true,"scripts":{"assets":"node scripts/build_assets.cjs"},"dependencies":{"katex":"^0.16.22"}}
+{"private":true,"scripts":{"assets":"node scripts/build_assets.cjs"},"dependencies":{"katex":"^0.18.2"}}
