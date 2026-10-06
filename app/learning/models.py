@@ -34,6 +34,7 @@ class AnswerAttempt(models.Model):
     revision = models.ForeignKey("questions.QuestionRevision", on_delete=models.PROTECT)
     grading_version = models.PositiveIntegerField()
     selected_choice_id = models.CharField(max_length=80)
+    is_unknown = models.BooleanField(default=False)
     is_correct = models.BooleanField()
     answered_at = models.DateTimeField(auto_now_add=True)
 

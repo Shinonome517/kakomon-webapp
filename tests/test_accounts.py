@@ -11,6 +11,18 @@ from django.utils import timezone
 pytestmark = pytest.mark.django_db
 
 
+@pytest.mark.parametrize("source_url", ["", "https://example.org/source"])
+def test_footer_license_and_learning_records_navigation(signed, settings, source_url):
+    settings.SOURCE_URL = source_url
+    html = signed.get("/password/").content.decode()
+    assert "非公式の学習アプリ" not in html
+    assert '<a href="/stats/">学習の記録</a>' in html
+    if source_url:
+        assert f'<a href="{source_url}">対応ソースコード（AGPL）</a>' in html
+    else:
+        assert "AGPL-3.0-only" in html
+
+
 def test_A01_creation_change_login():
     with patch(
         "accounts.management.commands.create_learner.getpass",

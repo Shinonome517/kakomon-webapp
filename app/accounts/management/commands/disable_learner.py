@@ -11,5 +11,5 @@ class Command(BaseCommand):
         if not User.objects.filter(username=User.normalize_username(options["username"])).update(
             is_active=False
         ):
-            raise CommandError("利用者が見つかりません")
-        self.stdout.write("無効化しました。")
+            raise CommandError("利用者アカウントが見つかりません。")
+        self.stdout.write("利用者アカウントを無効にしました。")

@@ -42,6 +42,8 @@ def test_A21_repeat_preserves_history(seeded, user):
     [
         lambda d: d["questions"].append(d["questions"][0]),
         lambda d: d["questions"][0].update(question_type="multi_choice"),
+        lambda d: d["questions"][0]["metadata"].update(choice_numbers_only="true"),
+        lambda d: d["questions"][0]["metadata"].update(choice_numbers_only=1),
         lambda d: d["questions"][0].update(correct_choice_id=["first", "second"]),
         lambda d: d["questions"][0].update(correct_choice_id="absent"),
         lambda d: d["questions"][0]["choices"].append(d["questions"][0]["choices"][0]),
@@ -140,6 +142,35 @@ def test_A24_grading_image_changes(seeded, user):
     Image.new("RGB", (100, 100), "black").save(seeded / "assets/figure-1.png")
     import_bundle(seeded)
     assert Question.objects.get(pk=item.revision.question_id).grading_version == 2
+
+
+def test_choice_numbers_only_preserves_grading_and_history(seeded, user):
+    item = start_session(user, {}, count=1).items.first()
+    submit_answer(user, item.pk, "second")
+    original = item.revision
+    for flag in (True, False):
+        change(seeded, lambda d: d["questions"][0]["metadata"].update(choice_numbers_only=flag))
+        assert import_bundle(seeded)["updated"] == 1
+        question = Question.objects.get(pk=original.question_id)
+        revision = question.current_revision
+        assert question.grading_version == revision.grading_version == original.grading_version
+        assert revision.grading_checksum == original.grading_checksum
+        assert revision.metadata["choice_numbers_only"] is flag
+        assert revision.stem_blocks == original.stem_blocks
+        assert revision.choices == original.choices
+        assert revision.correct_choice_id == original.correct_choice_id
+        assert statistics(question_set(user))["rate"] == "100.0%"
+        assert import_bundle(seeded)["unchanged"] == 6
+    assert AnswerAttempt.objects.count() == 1
+    assert QuestionRevision.objects.filter(question=question).count() == 3
+    change(
+        seeded,
+        lambda d: d["questions"][0]["choices"][0]["blocks"][0].update(text="選択肢本文の訂正"),
+    )
+    import_bundle(seeded)
+    question.refresh_from_db()
+    assert question.grading_version == original.grading_version + 1
+    assert statistics(question_set(user))["answered"] == 0
 
 
 def test_A17_metadata_stripped(bundle, settings, tmp_path):

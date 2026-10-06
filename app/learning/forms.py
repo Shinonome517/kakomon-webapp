@@ -3,20 +3,14 @@ from questions.models import ExamPaper, Topic
 
 
 class StudyForm(forms.Form):
-    subjects = forms.MultipleChoiceField(
-        label="科目", required=False, widget=forms.CheckboxSelectMultiple
-    )
-    papers = forms.MultipleChoiceField(
-        label="年度・実施回", required=False, widget=forms.CheckboxSelectMultiple
-    )
-    topics = forms.MultipleChoiceField(
-        label="分野", required=False, widget=forms.CheckboxSelectMultiple
-    )
+    subjects = forms.MultipleChoiceField(label="科目", widget=forms.CheckboxSelectMultiple)
+    papers = forms.MultipleChoiceField(label="年度・実施回", widget=forms.CheckboxSelectMultiple)
+    topics = forms.MultipleChoiceField(label="分野", widget=forms.CheckboxSelectMultiple)
     target = forms.ChoiceField(
         label="対象",
         choices=[
             ("all", "すべて"),
-            ("incorrect", "最終不正解"),
+            ("incorrect", "最後に間違えた問題"),
             ("unanswered", "未回答"),
             ("bookmarked", "ブックマーク"),
         ],
@@ -32,18 +26,37 @@ class StudyForm(forms.Form):
         initial=10,
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        papers = (
+    def __init__(self, data=None, *, for_stats=False, select_all=False, **kwargs):
+        papers = list(
             ExamPaper.objects.filter(question__status="verified")
             .distinct()
             .order_by("sort_key", "subject")
         )
-        self.fields["subjects"].choices = [(s, s) for s in sorted({p.subject for p in papers})]
-        self.fields["papers"].choices = [(p.code, str(p)) for p in papers]
-        self.fields["topics"].choices = [
-            (t.code, f"{t.subject} / {t.label}")
-            for t in Topic.objects.filter(question__status="verified")
-            .distinct()
-            .order_by("sort_order", "code")
-        ]
+        choices = {
+            "subjects": [(s, s) for s in sorted({p.subject for p in papers})],
+            "papers": [(p.code, str(p)) for p in papers],
+            "topics": [
+                (t.code, f"{t.subject} / {t.label}")
+                for t in Topic.objects.filter(question__status="verified")
+                .distinct()
+                .order_by("subject", "sort_order", "label", "pk")
+            ],
+        }
+        if select_all:
+            data = {
+                **{name: [value for value, _ in options] for name, options in choices.items()},
+                "target": "all",
+                "ordering": "ordered",
+                "count": "10",
+            }
+        super().__init__(data, **kwargs)
+        self.has_questions = bool(papers)
+        for name, options in choices.items():
+            field = self.fields[name]
+            field.choices = options
+            field.required = bool(options)
+            field.widget.attrs["aria-describedby"] = f"{self[name].auto_id}_error"
+            field.error_messages["required"] = f"{field.label}を1つ以上選んでください。"
+        if for_stats:
+            del self.fields["ordering"]
+            del self.fields["count"]

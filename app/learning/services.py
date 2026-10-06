@@ -93,7 +93,7 @@ def grade(revision, choice):
     return choice == revision.correct_choice_id
 
 
-def submit_answer(user, item_id, choice):
+def submit_answer(user, item_id, choice, *, is_unknown=False):
     for attempt in range(3):
         try:
             with transaction.atomic():
@@ -101,12 +101,14 @@ def submit_answer(user, item_id, choice):
                 rev = item.revision
                 if rev.grading_version != rev.question.grading_version:
                     raise StudyError(
-                        "改訂のため再学習してください。出題設定から始め直せます。", 409
+                        "問題が改訂されました。出題設定から学習を始め直してください。", 409
                     )
-                correct = grade(rev, choice)
+                if is_unknown and choice:
+                    raise StudyError("選択肢と「わからない」は同時に送信できません。")
+                correct = False if is_unknown else grade(rev, choice)
                 existing = AnswerAttempt.objects.filter(study_item=item).first()
                 if existing:
-                    if existing.selected_choice_id != choice:
+                    if existing.selected_choice_id != choice or existing.is_unknown != is_unknown:
                         raise StudyError("この問題の回答は保存済みです。", 409, existing)
                     return existing
                 answer = AnswerAttempt.objects.create(
@@ -116,6 +118,7 @@ def submit_answer(user, item_id, choice):
                     revision=rev,
                     grading_version=rev.grading_version,
                     selected_choice_id=choice,
+                    is_unknown=is_unknown,
                     is_correct=correct,
                 )
                 if not item.session.items.exclude(answer__isnull=False).exists():

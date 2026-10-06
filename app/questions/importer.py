@@ -118,7 +118,7 @@ def prepare(bundle):
             raise ImportFailure("問題番号が重複しています")
         positions.add(position)
         if q["correct_choice_id"] not in unique(q["choices"], "choice_id"):
-            raise ImportFailure("唯一の正解IDが必要です")
+            raise ImportFailure("正解の選択肢IDが選択肢に存在しません")
         assets = unique(q["assets"], "asset_id")
         q["_assets"] = {}
         for aid, entry in assets.items():
@@ -161,7 +161,7 @@ def prepare(bundle):
             if invalid:
                 q["status"] = "draft"
     except (OSError, subprocess.SubprocessError) as exc:
-        raise ImportFailure("数式検証にNode.jsとローカルKaTeXが必要です") from exc
+        raise ImportFailure("数式の検証にはNode.jsとローカルのKaTeXが必要です") from exc
     for q in data["questions"]:
         q["_checksum"] = digest(canonical({k: v for k, v in q.items() if k != "_usage"}))
         grading_assets = {

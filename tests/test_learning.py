@@ -222,3 +222,95 @@ def test_A25_parallel_distinct_items_latest_server_id(seeded, user):
     assert result["answered"] == 1
     assert result["correct"] == int(latest.is_correct)
     assert len(set(ids)) == 2
+
+
+@pytest.mark.parametrize("unknown_first", [True, False])
+def test_unknown_retry_conflict_and_latest(seeded, user, signed, unknown_first):
+    item = make_item(user)
+    url = f"/api/answer/{item.pk}/"
+    payload = {"unknown": "1"} if unknown_first else {"choice": "second"}
+    alternate = {"choice": "second"} if unknown_first else {"unknown": "1"}
+    first = signed.post(url, payload, HTTP_ACCEPT="application/json")
+    assert first.status_code == 200 and first.json()["saved"]
+    assert signed.post(url, payload, HTTP_ACCEPT="application/json").json() == first.json()
+    conflict = signed.post(url, alternate, HTTP_ACCEPT="application/json")
+    assert conflict.status_code == 409 and conflict.json()["saved"]
+    assert conflict.json()["error"]
+    assert AnswerAttempt.objects.count() == 1
+    attempt = AnswerAttempt.objects.get()
+    assert attempt.is_unknown == unknown_first
+    assert attempt.is_correct != unknown_first
+    if unknown_first:
+        assert attempt.selected_choice_id == ""
+        assert "× 不正解" in first.json()["html"]
+        assert "わからない（不正解として記録）" in first.json()["html"]
+        assert "わからない" in signed.get("/history/").content.decode()
+        assert statistics(question_set(user))["answered"] == 1
+        assert statistics(question_set(user))["correct"] == 0
+        assert list(question_set(user, {"target": "incorrect"})) == [item.revision.question]
+        again = make_item(user)
+        submit_answer(user, again.pk, "second")
+        assert statistics(question_set(user))["rate"] == "100.0%"
+        assert question_set(user, {"target": "incorrect"}).count() == 0
+
+
+@pytest.mark.parametrize("payload", [{}, {"unknown": "0"}, {"unknown": "1", "choice": "second"}])
+def test_unknown_requires_explicit_valid_operation(seeded, user, signed, payload):
+    item = make_item(user)
+    response = signed.post(f"/api/answer/{item.pk}/", payload, HTTP_ACCEPT="application/json")
+    assert response.status_code == 400
+    assert response.json()["html"] == ""
+    assert not response.json()["saved"]
+    assert AnswerAttempt.objects.count() == 0
+
+
+def test_previous_item_navigation_and_unknown_post(seeded, user, signed):
+    items = list(start_session(user, {}, count=0).items.all())
+    first, second = items[:2]
+    first_url, second_url = f"/study/{first.pk}/", f"/study/{second.pk}/"
+    assert "前の問題" not in signed.get(first_url).content.decode()
+    before = signed.get(second_url)
+    assert before.context["previous_item"] == first
+    assert first_url in before.content.decode()
+    assert "次の問題" not in before.content.decode()
+    response = signed.post(f"/api/answer/{first.pk}/", {"unknown": "1"}, follow=True)
+    assert response.status_code == 200
+    assert "わからない（不正解として記録）" in response.content.decode()
+    signed.get(second_url)
+    restored = signed.get(first_url)
+    assert restored.context["answer"].is_unknown
+    assert "disabled" in restored.content.decode()
+    assert AnswerAttempt.objects.count() == 1
+    submit_answer(user, second.pk, "second")
+    html = signed.get(second_url).content.decode()
+    assert html.index("出題設定へ・解き直す") < html.index("前の問題") < html.index("次の問題")
+    final = items[-1]
+    submit_answer(user, final.pk, "second")
+    html = signed.get(f"/study/{final.pk}/").content.decode()
+    assert html.index("このセットは完了です。") < html.index('<div class="next">')
+    assert "学習の記録を見る" in html
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.parametrize("mixed", [False, True])
+def test_unknown_parallel_one_answer(seeded, user, mixed):
+    item = make_item(user)
+    barrier = Barrier(2)
+
+    def send(index):
+        close_old_connections()
+        barrier.wait()
+        try:
+            return submit_answer(
+                user, item.pk, "second" if mixed and index else "", is_unknown=not (mixed and index)
+            ).pk
+        except StudyError as exc:
+            assert exc.status == 409
+            return exc.answer.pk
+        finally:
+            close_old_connections()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        ids = list(pool.map(send, range(2)))
+    assert ids[0] == ids[1]
+    assert AnswerAttempt.objects.filter(study_item=item).count() == 1

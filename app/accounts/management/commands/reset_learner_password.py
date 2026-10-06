@@ -16,11 +16,11 @@ class Command(BaseCommand):
             user = User.objects.get(username=User.normalize_username(options["username"]))
             password = getpass("新しい仮パスワード: ")
             if password != getpass("再入力: "):
-                raise CommandError("パスワードが一致しません")
+                raise CommandError("パスワードが一致しません。")
             validate_password(password, user)
             user.set_password(password)
             user.must_change_password = True
             user.save()
         except (User.DoesNotExist, ValidationError) as exc:
-            raise CommandError("対象またはパスワードを確認してください") from exc
-        self.stdout.write("再設定しました。既存セッションは失効します。")
+            raise CommandError("ユーザー名またはパスワードを確認してください。") from exc
+        self.stdout.write("仮パスワードを再設定しました。既存セッションは失効します。")
