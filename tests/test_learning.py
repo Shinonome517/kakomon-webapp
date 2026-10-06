@@ -283,7 +283,7 @@ def test_previous_item_navigation_and_unknown_post(seeded, user, signed):
     assert AnswerAttempt.objects.count() == 1
     submit_answer(user, second.pk, "second")
     html = signed.get(second_url).content.decode()
-    assert html.index("出題設定へ・解き直す") < html.index("前の問題") < html.index("次の問題")
+    assert html.index("出題設定へ") < html.index("前の問題") < html.index("次の問題")
     final = items[-1]
     submit_answer(user, final.pk, "second")
     html = signed.get(f"/study/{final.pk}/").content.decode()

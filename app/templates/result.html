@@ -5,8 +5,8 @@
 <h3>解説</h3>{% blocks revision.explanation_blocks item 'explanation' %}
 {% if not next_item %}<p class="completion">このセットは完了です。</p>{% endif %}
 </section>
+<p><a class="settings-link" href="/">出題設定へ</a></p>
 <div class="next">
-<a class="button secondary" href="/">出題設定へ・解き直す</a>
 {% if previous_item %}<a class="button secondary" href="{% url 'item' previous_item.pk %}">前の問題</a>{% endif %}
 {% if next_item %}<a class="button primary" href="{% url 'item' next_item.pk %}">次の問題</a>{% else %}<a class="button primary" href="/stats/">学習の記録を見る</a>{% endif %}
 </div>{% endif %}
